@@ -1,0 +1,136 @@
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/typography';
+
+/* -- Design tokens -------------------------------------------------------------
+
+   The engine's site should look related to llama.app but clearly not be it.
+   llama.app is soft and friendly (system font, sky blue, a Mac menu). This
+   site is for developers, so it leans technical: Geist + Geist Mono, near-
+   black ink, and the orange of the ".cpp" in the llama.cpp wordmark as the
+   one accent. Code panels are dark in both themes (see `--code-*`).
+
+   The theme follows the OS setting (Tailwind's `dark:` is media-based by
+   default), so there's no toggle to maintain. */
+
+:root {
+	--background: #ffffff;
+	--foreground: #0b0b0c;
+	--muted: #f4f4f5;
+	--muted-foreground: #63636b;
+	--border: #e4e4e7;
+	--accent: #e8590c;
+	--accent-soft: rgb(232 89 12 / 0.09);
+
+	--code-background: #0e0e10;
+	--code-foreground: #e6e6e9;
+	--code-muted: #8b8b94;
+	--code-border: rgb(255 255 255 / 0.09);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background: #0b0b0c;
+		--foreground: #f4f4f5;
+		--muted: #17171a;
+		--muted-foreground: #9d9da6;
+		--border: #26262b;
+		--accent: #ff7a33;
+		--accent-soft: rgb(255 122 51 / 0.1);
+
+		/* One step lighter than the page, so code panels still read as
+		   panels on the near-black background. */
+		--code-background: #141417;
+	}
+}
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-border: var(--border);
+	--color-accent: var(--accent);
+	--color-accent-soft: var(--accent-soft);
+	--color-code: var(--code-background);
+	--color-code-foreground: var(--code-foreground);
+	--color-code-muted: var(--code-muted);
+	--color-code-border: var(--code-border);
+
+	--font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--font-mono:
+		'Geist Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+
+	html {
+		@apply scroll-smooth;
+	}
+
+	body {
+		@apply bg-background font-sans text-foreground antialiased;
+	}
+
+	::selection {
+		@apply bg-accent/25;
+	}
+}
+
+/* -- Prism ----------------------------------------------------------------------
+
+   One palette, for dark panels only: both the homepage snippets and the docs'
+   code blocks are dark in both themes. Kept muted -- the accent orange is
+   saved for strings, so a snippet's "payload" (a prompt, a URL, a path)
+   stands out. */
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #6b6b75;
+}
+
+.token.punctuation,
+.token.operator {
+	color: #a1a1aa;
+}
+
+.token.keyword,
+.token.boolean,
+.token.important {
+	color: #c4b5fd;
+}
+
+.token.function,
+.token.class-name,
+.token.builtin {
+	color: #93c5fd;
+}
+
+.token.string,
+.token.char,
+.token.attr-value,
+.token.url {
+	color: #fdba74;
+}
+
+.token.number,
+.token.constant,
+.token.property,
+.token.symbol {
+	color: #86efac;
+}
+
+.token.parameter,
+.token.variable {
+	color: #e6e6e9;
+}
+
+.token.directive,
+.token.macro {
+	color: #f9a8d4;
+}

@@ -1,0 +1,41 @@
+<!doctype html>
+<!-- `data-os` is the fallback for visitors without JS; the script below
+     replaces it with the visitor's actual OS, so the install commands can
+     default to the right one (see InstallCommand.svelte). -->
+<html lang="en" data-os="other">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
+		<!-- A proposal, not the official site yet: keep it out of search
+		     results so it doesn't compete with (or pass for) the real one.
+		     Remove along with static/robots.txt once it's adopted. -->
+		<meta name="robots" content="noindex" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"
+		/>
+		<!-- Same detection as llama.app. Set before the first paint, since
+		     the pages are prerendered. iPads report themselves as Macintosh,
+		     so a touch screen rules out a Mac. -->
+		<script>
+			(function () {
+				var ua = navigator.userAgent;
+
+				document.documentElement.dataset.os = /Windows/.test(ua)
+					? 'windows'
+					: /Macintosh/.test(ua) && navigator.maxTouchPoints < 2
+						? 'mac'
+						: /Linux/.test(ua) && !/Android/.test(ua)
+							? 'linux'
+							: 'other';
+			})();
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
