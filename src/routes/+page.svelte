@@ -612,16 +612,15 @@ cmake --build build --config Release`,
 	<!-- 2. Stats. Social proof in the currency developers trust: GitHub.
 	     Numbers only, no logo wall -- we'd need permission for logos, and
 	     the numbers are verifiable. -->
-	<!-- The borders sit on the list, not the section, so they stop at the
-	     content width. -->
+	<!-- A closed box, drawn the same way as the server's feature grid (1px
+	     gaps over a border-colored background make the dividers), so every
+	     bordered block on the page is a closed, rounded box. -->
 	<section class="mx-auto max-w-6xl px-6 md:px-12">
-		<dl class="grid grid-cols-2 border-y md:grid-cols-4">
-			{#each stats as s, i (s.label)}
-				<div
-					class="flex flex-col gap-1 py-8 {i % 2 === 1 ? 'pl-6 max-md:border-l' : ''} {i > 0
-						? 'md:border-l md:pl-8'
-						: ''} {i > 1 ? 'max-md:border-t' : ''}"
-				>
+		<dl
+			class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border md:grid-cols-4"
+		>
+			{#each stats as s (s.label)}
+				<div class="flex flex-col gap-1 bg-background p-6">
 					<dt class="order-2 text-sm text-muted-foreground">{s.label}</dt>
 					<dd class="order-1 font-mono text-3xl font-semibold tracking-tight">{s.value}</dd>
 				</div>
