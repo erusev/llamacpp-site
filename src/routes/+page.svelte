@@ -617,8 +617,12 @@ cmake --build build --config Release`,
 		<!-- 3. The toolkit. The `llama` binary is new and unifies what used
 		     to be a dozen `llama-*` executables, so it's worth a section:
 		     "install once, get everything". The list is drawn as `llama help all`
-		     output, since that's where a user would actually see it. -->
-		<section class="grid grid-cols-1 items-center gap-12 py-24 lg:grid-cols-2">
+		     output, since that's where a user would actually see it.
+		     Text and code split 2:3 on desktop, here and in the other
+		     text-and-code sections (the server, install), so the code blocks
+		     all match -- and at full width this terminal fits the longest
+		     `llama help all` line (69 characters) without wrapping. -->
+		<section class="grid grid-cols-1 items-center gap-12 py-24 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
 			<!-- The eyebrow names the thing, like `llama serve` and `libllama`
 			     below; the heading's "in one command" is that same `llama`. -->
 			<div class="flex flex-col gap-8">
@@ -644,15 +648,19 @@ cmake --build build --config Release`,
 						<span class="size-2.5 rounded-full bg-white/15"></span>
 					</span>
 				</div>
-				<div class="p-5">
+				<!-- Scrolls sideways where a line doesn't fit (small tablets, and
+				     windows under ~1110px wide), rather than wrapping it. -->
+				<div class="overflow-x-auto p-5">
 					<p><span class="mr-[1ch] text-accent select-none">$</span>{@html bash('llama help all')}</p>
 					<p class="text-code-muted">Available commands:</p>
-					<!-- Two columns that line up, like the real output. On phones
-					     the descriptions wrap under the names instead. -->
-					<dl class="grid grid-cols-1 sm:grid-cols-[9rem_1fr]">
+					<!-- Two columns that line up, like the real output: `llama`
+					     prints each command as `  %-15s %s`, so 18ch (a 2ch indent, a
+					     15ch name, a space) before the description. One line per command. On
+					     phones the descriptions go under the names instead. -->
+					<dl class="grid grid-cols-1 sm:grid-cols-[18ch_auto]">
 						{#each COMMANDS as c (c.name)}
-							<dt class="pl-4 text-code-foreground">{c.name}</dt>
-							<dd class="pl-4 text-code-muted max-sm:mb-1 max-sm:pl-8 sm:pl-0">{c.desc}</dd>
+							<dt class="pl-[2ch] text-code-foreground">{c.name}</dt>
+							<dd class="text-code-muted max-sm:mb-1 max-sm:pl-[4ch] sm:whitespace-nowrap">{c.desc}</dd>
 						{/each}
 					</dl>
 				</div>
@@ -663,7 +671,7 @@ cmake --build build --config Release`,
 		     people meet it through an app that talks to `llama serve`. Code
 		     first on desktop (it's the thing to copy), features below. -->
 		<section class="flex flex-col gap-12 py-24">
-			<div class="grid grid-cols-1 items-end gap-12 lg:grid-cols-2">
+			<div class="grid grid-cols-1 items-end gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
 				{@render heading(
 					'llama serve',
 					'An OpenAI-compatible server, built in',
@@ -864,7 +872,7 @@ cmake --build build --config Release`,
 		     people with a preference (a package manager, a container, their
 		     own build flags). Anchored, so the hero can link here. -->
 		<section id="install" class="flex flex-col gap-12 py-24">
-			<div class="grid grid-cols-1 items-end gap-12 lg:grid-cols-2">
+			<div class="grid grid-cols-1 items-end gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
 				{@render heading(
 					'Install',
 					'Get llama.cpp your way',
