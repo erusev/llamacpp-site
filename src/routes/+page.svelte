@@ -114,7 +114,9 @@
 	//
 	// Subcommands of the unified `llama` binary, with their descriptions
 	// verbatim from the command table in `app/llama.cpp`. Not all of them:
-	// `update`, `licenses`, and `help` are housekeeping.
+	// `update`, `version`, `licenses`, and `help` are housekeeping. Most of
+	// these are hidden from plain `llama help`, so the section shows
+	// `llama help all`.
 	const COMMANDS = [
 		{ desc: 'HTTP API server', name: 'serve' },
 		{ desc: 'Command-line interactive interface', name: 'cli' },
@@ -154,7 +156,7 @@
 			title: 'Tools and structured output'
 		},
 		{
-			body: 'Images and audio as input, through the same OpenAI-compatible endpoints.',
+			body: 'Images, audio, and video as input, through the same OpenAI-compatible endpoints.',
 			icon: AudioLines,
 			title: 'Multimodal'
 		},
@@ -164,7 +166,7 @@
 			title: 'Built to serve'
 		},
 		{
-			body: 'A small draft model proposes tokens, the big one verifies them — same output, faster.',
+			body: 'A small draft model, n-gram lookup, or multi-token prediction proposes tokens; the model verifies them. Same output, faster.',
 			icon: Zap,
 			title: 'Speculative decoding'
 		},
@@ -248,7 +250,8 @@ const reply = await client.chat.completions.create({
 			backends: [
 				{ device: 'Ascend NPUs', name: 'CANN' },
 				{ device: 'Snapdragon', name: 'Hexagon' },
-				{ device: 'Intel CPU, GPU, NPU', name: 'OpenVINO' },
+				// Marked "In Progress" in the README's backends table
+				{ device: 'Intel CPU, GPU, NPU (in progress)', name: 'OpenVINO' },
 				{ device: 'IBM Z & LinuxONE', name: 'zDNN' },
 				{ device: 'Across machines', name: 'RPC' }
 			],
@@ -280,12 +283,17 @@ const reply = await client.chat.completions.create({
 
 	// -- The C API --------------------------------------------------------------------------
 	//
-	// A condensed `examples/simple/simple.cpp`: the same calls, in the same
-	// order, minus error handling and the tokenization boilerplate. Keep the
-	// function names in sync with `include/llama.h`.
+	// A condensed `examples/simple/simple.cpp`, minus error handling and the
+	// tokenization boilerplate. It's C++, not C: `llama.h` declares
+	// `struct llama_model` etc. without typedefs, so C would need `struct`
+	// on every type. `ggml_backend_load_all()` stays in because builds with
+	// dynamic backends (`GGML_BACKEND_DL`) load no backend without it. Keep
+	// the function names in sync with `include/llama.h`.
 	const C_TABS: Tab[] = [
 		{
 			code: `#include "llama.h"
+
+ggml_backend_load_all();
 
 llama_model * model = llama_model_load_from_file(
     "model.gguf", llama_model_default_params());
@@ -306,14 +314,15 @@ while (llama_decode(ctx, batch) == 0) {
     // ...print llama_token_to_piece(vocab, tok, ...)
     batch = llama_batch_get_one(&tok, 1);
 }`,
-			id: 'c',
-			label: 'simple.c',
+			id: 'cpp',
+			label: 'simple.cpp',
+			// C highlighting: this snippet uses nothing C++-specific to color
 			lang: 'c'
 		}
 	];
 
 	const EMBED_TARGETS = [
-		{ href: repoDoc('include/llama.h'), label: 'llama.h', note: 'The C API, one header' },
+		{ href: repoDoc('include/llama.h'), label: 'llama.h', note: 'The C API' },
 		{
 			href: repoDoc('docs/xcframework.md'),
 			label: 'XCFramework',
@@ -582,7 +591,7 @@ cmake --build build --config Release`,
 	<div class="mx-auto max-w-6xl px-4 sm:px-6">
 		<!-- 3. The toolkit. The `llama` binary is new and unifies what used
 		     to be a dozen `llama-*` executables, so it's worth a section:
-		     "install once, get everything". The list is drawn as `llama help`
+		     "install once, get everything". The list is drawn as `llama help all`
 		     output, since that's where a user would actually see it. -->
 		<section class="grid grid-cols-1 items-center gap-12 py-24 lg:grid-cols-2">
 			<div class="flex flex-col gap-6">
@@ -602,7 +611,7 @@ cmake --build build --config Release`,
 			<div
 				class="overflow-hidden rounded-xl border border-code-border bg-code p-5 font-mono text-[12.5px] leading-7 text-code-foreground sm:text-[13px]"
 			>
-				<p><span class="mr-[1ch] text-accent select-none">$</span>llama help</p>
+				<p><span class="mr-[1ch] text-accent select-none">$</span>llama help all</p>
 				<p class="text-code-muted">Available commands:</p>
 				<!-- Two columns that line up, like the real output. On phones
 				     the descriptions wrap under the names instead. -->
@@ -623,7 +632,7 @@ cmake --build build --config Release`,
 				{@render heading(
 					'llama serve',
 					'An OpenAI-compatible server, built in',
-					'One command gives you a fast HTTP server with a web UI. Anything that works with the OpenAI API works with it — change the base URL and keep your code.'
+					'One command gives you a fast HTTP server with a web UI. Most tools built for the OpenAI API work with it — change the base URL and keep your code.'
 				)}
 				<CodeTabs tabs={API_TABS} />
 			</div>
@@ -703,8 +712,8 @@ cmake --build build --config Release`,
 			<div class="flex flex-col gap-6">
 				{@render heading(
 					'GGUF',
-					'Every model, in one file',
-					'GGUF packs a model’s weights, tokenizer, and metadata into a single file, ready to run. Thousands are on Hugging Face — pass any of them to -hf and it downloads and runs.'
+					'One format for every model',
+					'GGUF packs a model’s weights, tokenizer, and metadata together, ready to run. Thousands are on Hugging Face — pass any of them to -hf and it downloads and runs.'
 				)}
 				<ul class="flex flex-col gap-2.5 text-sm">
 					<li class="flex gap-3">
@@ -718,7 +727,7 @@ cmake --build build --config Release`,
 					<li class="flex gap-3">
 						<span class="mt-2 size-1 shrink-0 rounded-full bg-accent"></span>
 						<span
-							>Convert any Hugging Face model with <code class="font-mono text-[13px]"
+							>Convert Hugging Face models with <code class="font-mono text-[13px]"
 								>convert_hf_to_gguf.py</code
 							></span
 						>
@@ -767,7 +776,7 @@ cmake --build build --config Release`,
 				</ul>
 				<p class="border-t pt-4 text-xs leading-relaxed text-muted-foreground">
 					<span class="font-medium text-foreground">Q4_K_M</span> is a third of the size of F16, for a
-					small loss in quality — the usual starting point. Figures from
+					small loss in quality — the usual starting point. Quantized figures from
 					<code class="font-mono">llama quantize</code>.
 				</p>
 			</figure>
@@ -781,7 +790,7 @@ cmake --build build --config Release`,
 				{@render heading(
 					'libllama',
 					'Build it into anything',
-					'The same C API that powers llama cli and llama serve. No dependencies, one header. Load a model, decode, sample, and ship it in your app, on your device, or behind your service.'
+					'The same C API that powers llama cli and llama serve, with no external dependencies. Load a model, decode, sample, and ship it in your app, on your device, or behind your service.'
 				)}
 				<ul class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 					{#each EMBED_TARGETS as t (t.label)}
@@ -812,7 +821,7 @@ cmake --build build --config Release`,
 				{@render heading(
 					'Install',
 					'Get llama.cpp your way',
-					'Every method gives you the same tools. Prebuilt binaries for every platform and backend are also on the releases page.'
+					'Every method gives you the same tools. Prebuilt binaries for the major platforms and backends are also on the releases page.'
 				)}
 				<div class="flex flex-col gap-3">
 					<CodeTabs tabs={INSTALL_TABS} bind:selected={installMethod} />
