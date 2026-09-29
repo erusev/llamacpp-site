@@ -283,8 +283,12 @@ const reply = await client.chat.completions.create({
 			backends: [
 				{ device: 'Ascend NPUs', name: 'CANN' },
 				{ device: 'Snapdragon', name: 'Hexagon' },
-				// Marked "In Progress" in the README's backends table
-				{ device: 'Intel CPU, GPU, NPU (in progress)', name: 'OpenVINO' },
+				// The README targets it at "Intel CPUs, GPUs, and NPUs", but
+				// Intel CPUs and GPUs are already covered above (x86, SYCL), so
+				// the row names what it adds. Marked "In Progress" in the
+				// README's backends table; the status goes with the backend,
+				// not the device, so it can't read as the hardware's.
+				{ device: 'Intel NPUs', name: 'OpenVINO', status: 'in progress' },
 				{ device: 'IBM Z & LinuxONE', name: 'zDNN' }
 			],
 			title: 'NPUs and mainframes'
@@ -731,7 +735,13 @@ cmake --build build --config Release`,
 							{#each group.backends as b (b.name)}
 								<li class="flex items-baseline justify-between gap-4 py-2.5 text-sm">
 									<span>{b.device}</span>
-									<span class="text-right font-mono text-muted-foreground">{b.name}</span>
+									<span class="flex items-baseline gap-2 text-right font-mono text-muted-foreground">
+										<!-- Before the name, so the names stay aligned on the right. -->
+										{#if b.status}
+											<span class="rounded bg-muted px-1.5 py-0.5 font-sans text-[11px]">{b.status}</span>
+										{/if}
+										{b.name}
+									</span>
 								</li>
 							{/each}
 						</ul>
