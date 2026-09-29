@@ -5,7 +5,7 @@
 	// to run models from the terminal, serve them, benchmark them, or build
 	// them into something. People who just want to use local AI belong on
 	// llama.app, and the page says so up front (the header, the hero's
-	// "Prefer a desktop app?" line) and again at the end.
+	// "Prefer a desktop app?" line) and again at the end, in the same words.
 	//
 	// Section order follows the questions an engine visitor asks, in order:
 	//   1. What is this, and how do I try it?  -- hero: tagline, install, terminal
@@ -49,6 +49,7 @@
 		GITHUB_URL,
 		INSTALL_PS1,
 		INSTALL_SH,
+		RELEASES_URL,
 		formatStars,
 		repoDoc,
 		STATS
@@ -91,7 +92,9 @@
 	// real one from the docs' Quickstart (thinking trimmed), including its
 	// speeds -- keep them in sync, or drop the speeds rather than invent
 	// new ones. The `serve` tab shows commands only, no log output, so
-	// there's nothing in it that can go stale.
+	// there's nothing in it that can go stale. Both tabs use the same model
+	// (the Q4_K_M the quantization chart recommends), and the curl call is
+	// the same one as in the server section.
 	type Line = { kind: 'cmd' | 'input' | 'output' | 'muted'; text: string };
 
 	const SESSIONS: { id: string; label: string; lines: Line[] }[] = [
@@ -112,11 +115,11 @@
 			id: 'serve',
 			label: 'llama serve',
 			lines: [
-				{ kind: 'cmd', text: 'llama serve -hf ggml-org/gemma-4-e4b-it-GGUF:Q4_0' },
+				{ kind: 'cmd', text: 'llama serve -hf unsloth/gemma-4-E4B-it-GGUF:Q4_K_M' },
 				{ kind: 'muted', text: '# web UI and OpenAI-compatible API on http://localhost:8080' },
 				{
 					kind: 'cmd',
-					text: `curl localhost:8080/v1/chat/completions \\\n  -d '{"messages": [{"role": "user", "content": "Hi!"}]}'`
+					text: `curl http://localhost:8080/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d '{"messages": [{"role": "user", "content": "Hello!"}]}'`
 				}
 			]
 		}
@@ -210,7 +213,7 @@
 		{
 			code: `from openai import OpenAI
 
-client = OpenAI(base_url="http://localhost:8080/v1", api_key="none")
+client = OpenAI(base_url="http://localhost:8080/v1", api_key="no-key-required")
 
 reply = client.chat.completions.create(
     model="gemma-4-e4b-it",
@@ -223,7 +226,7 @@ reply = client.chat.completions.create(
 		{
 			code: `import OpenAI from "openai";
 
-const client = new OpenAI({ baseURL: "http://localhost:8080/v1", apiKey: "none" });
+const client = new OpenAI({ baseURL: "http://localhost:8080/v1", apiKey: "no-key-required" });
 
 const reply = await client.chat.completions.create({
   model: "gemma-4-e4b-it",
@@ -283,7 +286,8 @@ const reply = await client.chat.completions.create({
 	// Llama 3 8B at each common quantization level: size and perplexity
 	// increase, verbatim from the type table in
 	// `tools/quantize/quantize.cpp` (its "G" is GiB -- Q8_0 at 8.5 bits per
-	// weight x 8.03B params = 7.95 GiB). F16 isn't in that table for this
+	// weight x 8.03B params is 7.95 GiB, within rounding of the table's
+	// 7.96). F16 isn't in that table for this
 	// model; its size is 8.03B params x 2 bytes, and it's the baseline the
 	// perplexity increases are measured against.
 	const QUANTS = [
@@ -406,7 +410,7 @@ while (llama_decode(ctx, batch) == 0) {
 			id: 'docker',
 			label: 'Docker',
 			lang: 'bash',
-			note: 'Also :server-cuda, :server-rocm, and more. See docs/docker.md.'
+			note: 'Also :server-cuda, :server-rocm, and more.'
 		},
 		{
 			code: `git clone https://github.com/ggml-org/llama.cpp
@@ -416,7 +420,7 @@ cmake --build build --config Release`,
 			id: 'source',
 			label: 'From source',
 			lang: 'bash',
-			note: 'Add backend flags like -DGGML_CUDA=ON. See docs/build.md.'
+			note: 'Add backend flags like -DGGML_CUDA=ON.'
 		}
 	];
 
@@ -432,13 +436,37 @@ cmake --build build --config Release`,
 </svelte:head>
 
 <!-- A section heading: a small mono eyebrow over the h2, and a lead
-     paragraph. Every section uses it, so the rhythm stays the same. -->
+     paragraph. Every section uses it, so the rhythm stays the same.
+     `backticked` spans in the lead are set as code, like literals
+     everywhere else on the page (odd-numbered parts of the split are the
+     ones inside backticks). -->
 {#snippet heading(eyebrow: string, title: string, lead: string)}
 	<div class="flex max-w-2xl flex-col gap-4">
 		<p class="font-mono text-xs tracking-wider text-accent uppercase">{eyebrow}</p>
 		<h2 class="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{title}</h2>
-		<p class="text-lg leading-relaxed text-pretty text-muted-foreground">{lead}</p>
+		<p class="text-lg leading-relaxed text-pretty text-muted-foreground">
+			{#each lead.split('`') as part, i (i)}{#if i % 2 === 1}<code class="font-mono text-[0.9em]"
+						>{part}</code
+					>{:else}{part}{/if}{/each}
+		</p>
 	</div>
+{/snippet}
+
+<!-- A "read more" link under a section. Internal links get a right arrow,
+     links that leave the site an up-right one, so the arrow always says
+     where you'll end up. -->
+{#snippet more(href: string, label: string)}
+	<a
+		{href}
+		class="flex items-center gap-1.5 text-sm font-medium underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+	>
+		{label}
+		{#if href.startsWith('http')}
+			<ArrowUpRight class="size-3.5" />
+		{:else}
+			<ArrowRight class="size-3.5" />
+		{/if}
+	</a>
 {/snippet}
 
 <main>
@@ -521,13 +549,14 @@ cmake --build build --config Release`,
 
 				<!-- The hand-off, right after the terminal commands, for anyone who'd
 				     rather not use them. Framed as a preference, not as "not a
-				     developer" -- plenty of developers use the app too. -->
+				     developer" -- plenty of developers use the app too. The closing
+				     section asks the same question. -->
 				<p class="text-sm text-muted-foreground">
 					Prefer a desktop app?
 					<a
 						href={APP_URL}
-						class="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-						>Get Llama</a
+						class="inline-flex items-center gap-0.5 font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+						>Get Llama <ArrowUpRight class="size-3.5" /></a
 					> — llama.cpp in a native app, with nothing to set up.
 				</p>
 			</div>
@@ -535,7 +564,7 @@ cmake --build build --config Release`,
 			<!-- The terminal. aria-hidden isn't used: the transcript is real
 			     content (what the commands do). -->
 			<div
-				class="overflow-hidden rounded-xl border border-code-border bg-code text-code-foreground shadow-2xl shadow-black/20"
+				class="overflow-hidden rounded-xl border border-code-border bg-code text-code-foreground shadow-2xl shadow-black/10"
 			>
 				<div class="flex items-center gap-4 border-b border-code-border px-4">
 					<span aria-hidden="true" class="flex gap-1.5">
@@ -561,9 +590,7 @@ cmake --build build --config Release`,
 					</div>
 				</div>
 				<!-- Fixed min height so switching tabs doesn't make the page jump. -->
-				<div
-					class="flex min-h-72 flex-col gap-4 p-5 font-mono text-[12.5px] leading-relaxed sm:text-[13px]"
-				>
+				<div class="flex min-h-72 flex-col gap-4 p-5 font-mono text-[12.5px] leading-6 sm:text-[13px]">
 					{#each session.lines as line, i (i)}
 						{#if line.kind === 'cmd'}
 							<p class="whitespace-pre-wrap">
@@ -608,33 +635,43 @@ cmake --build build --config Release`,
 		     "install once, get everything". The list is drawn as `llama help all`
 		     output, since that's where a user would actually see it. -->
 		<section class="grid grid-cols-1 items-center gap-12 py-24 lg:grid-cols-2">
-			<div class="flex flex-col gap-6">
+			<!-- The eyebrow names the thing, like `llama serve` and `libllama`
+			     below; the heading's "in one command" is that same `llama`. -->
+			<div class="flex flex-col gap-8">
 				{@render heading(
-					'One binary',
+					'llama',
 					'The whole toolkit, in one command',
-					'Chat with a model in your terminal, serve it over HTTP, benchmark your hardware, or quantize a model — all from one binary. Models download straight from Hugging Face.'
+					'Chat with a model in your terminal, serve it over HTTP, benchmark your hardware, or quantize a model — all from the `llama` command. Models download straight from Hugging Face.'
 				)}
-				<a
-					href={docs('cli')}
-					class="flex items-center gap-1.5 text-sm font-medium underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-				>
-					Using the CLI <ArrowRight class="size-3.5" />
-				</a>
+				{@render more(docs('cli'), 'Using the CLI')}
 			</div>
 
+			<!-- Drawn like the hero's terminal (window dots, font, line height,
+			     shadow), minus the tabs, so the two read as the same terminal. -->
 			<div
-				class="overflow-hidden rounded-xl border border-code-border bg-code p-5 font-mono text-[12.5px] leading-7 text-code-foreground sm:text-[13px]"
+				class="overflow-hidden rounded-xl border border-code-border bg-code font-mono text-[12.5px] leading-6 text-code-foreground shadow-2xl shadow-black/10 sm:text-[13px]"
 			>
-				<p><span class="mr-[1ch] text-accent select-none">$</span>{@html bash('llama help all')}</p>
-				<p class="text-code-muted">Available commands:</p>
-				<!-- Two columns that line up, like the real output. On phones
-				     the descriptions wrap under the names instead. -->
-				<dl class="grid grid-cols-1 sm:grid-cols-[9rem_1fr]">
-					{#each COMMANDS as c (c.name)}
-						<dt class="pl-4 text-code-foreground">{c.name}</dt>
-						<dd class="pl-4 text-code-muted max-sm:mb-1 max-sm:pl-8 sm:pl-0">{c.desc}</dd>
-					{/each}
-				</dl>
+				<!-- Same height as the hero's tab bar (py-2.5 around a text-xs
+				     line, plus its 2px tab underline). -->
+				<div aria-hidden="true" class="flex h-9.75 items-center border-b border-code-border px-4">
+					<span class="flex gap-1.5">
+						<span class="size-2.5 rounded-full bg-white/15"></span>
+						<span class="size-2.5 rounded-full bg-white/15"></span>
+						<span class="size-2.5 rounded-full bg-white/15"></span>
+					</span>
+				</div>
+				<div class="p-5">
+					<p><span class="mr-[1ch] text-accent select-none">$</span>{@html bash('llama help all')}</p>
+					<p class="text-code-muted">Available commands:</p>
+					<!-- Two columns that line up, like the real output. On phones
+					     the descriptions wrap under the names instead. -->
+					<dl class="grid grid-cols-1 sm:grid-cols-[9rem_1fr]">
+						{#each COMMANDS as c (c.name)}
+							<dt class="pl-4 text-code-foreground">{c.name}</dt>
+							<dd class="pl-4 text-code-muted max-sm:mb-1 max-sm:pl-8 sm:pl-0">{c.desc}</dd>
+						{/each}
+					</dl>
+				</div>
 			</div>
 		</section>
 
@@ -661,19 +698,9 @@ cmake --build build --config Release`,
 				{/each}
 			</div>
 
-			<div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-				<a
-					href={docs('serve')}
-					class="flex items-center gap-1.5 font-medium underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-				>
-					Running a server <ArrowRight class="size-3.5" />
-				</a>
-				<a
-					href={docs('api')}
-					class="flex items-center gap-1.5 font-medium underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-				>
-					API reference <ArrowRight class="size-3.5" />
-				</a>
+			<div class="flex flex-wrap gap-x-6 gap-y-2">
+				{@render more(docs('serve'), 'Running a server')}
+				{@render more(docs('api'), 'API reference')}
 			</div>
 		</section>
 
@@ -703,19 +730,10 @@ cmake --build build --config Release`,
 				{/each}
 			</div>
 
-			<p class="text-sm text-muted-foreground">
-				Setup for each backend is in
-				<a
-					href={repoDoc('docs/build.md')}
-					class="text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-					>the build guide</a
-				>; splitting a model across devices is in
-				<a
-					href={repoDoc('docs/multi-gpu.md')}
-					class="text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-					>multi-GPU</a
-				>.
-			</p>
+			<div class="flex flex-wrap gap-x-6 gap-y-2">
+				{@render more(repoDoc('docs/build.md'), 'Building for your backend')}
+				{@render more(repoDoc('docs/multi-gpu.md'), 'Splitting across GPUs')}
+			</div>
 		</section>
 
 		<!-- 6. Models. GGUF and quantization are what make local inference
@@ -723,11 +741,11 @@ cmake --build build --config Release`,
 		     section explains them, and shows the trade-off with real numbers
 		     rather than claiming "small and fast". -->
 		<section class="grid grid-cols-1 items-center gap-12 py-24 lg:grid-cols-2">
-			<div class="flex flex-col gap-6">
+			<div class="flex flex-col gap-8">
 				{@render heading(
 					'GGUF',
 					'One format for every model',
-					'GGUF packs a model’s weights, tokenizer, and metadata together, ready to run. Thousands are on Hugging Face — pass any of them to -hf and it downloads and runs.'
+					'GGUF packs a model’s weights, tokenizer, and metadata together, ready to run. Thousands are on Hugging Face — pass any of them to `-hf` and it downloads and runs.'
 				)}
 				<ul class="flex flex-col gap-2.5 text-sm">
 					<li class="flex gap-3">
@@ -751,12 +769,7 @@ cmake --build build --config Release`,
 						<span>Models are kept in the standard Hugging Face cache, shared with other tools</span>
 					</li>
 				</ul>
-				<a
-					href={GGUF_MODELS_URL}
-					class="flex items-center gap-1.5 text-sm font-medium underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-				>
-					Browse GGUF models on Hugging Face <ArrowUpRight class="size-3.5" />
-				</a>
+				{@render more(GGUF_MODELS_URL, 'Browse GGUF models on Hugging Face')}
 			</div>
 
 			<!-- The quantization chart. Bars are sized relative to F16, so the
@@ -782,14 +795,14 @@ cmake --build build --config Release`,
 									<span class="text-muted-foreground">GiB</span>
 								</span>
 								<span class="ml-auto font-mono whitespace-nowrap text-muted-foreground">
-									{q.ppl === null ? 'baseline' : `+${q.ppl.toFixed(q.ppl < 0.1 ? 3 : 2)}`}
+									{q.ppl === null ? 'baseline' : `+${q.ppl.toFixed(3)}`}
 								</span>
 							</span>
 						</li>
 					{/each}
 				</ul>
 				<p class="border-t pt-4 text-xs leading-relaxed text-muted-foreground">
-					<span class="font-medium text-foreground">Q4_K_M</span> is a third of the size of F16, for a
+					<code class="font-mono font-medium text-foreground">Q4_K_M</code> is a third of the size of F16, for a
 					small loss in quality — the usual starting point. Quantized figures from
 					<code class="font-mono">llama quantize</code>.
 				</p>
@@ -804,7 +817,7 @@ cmake --build build --config Release`,
 				{@render heading(
 					'libllama',
 					'Build it into anything',
-					'The same C API that powers llama cli and llama serve, with no external dependencies. Load a model, decode, sample, and ship it in your app, on your device, or behind your service.'
+					'The same C API that powers `llama cli` and `llama serve`, with no external dependencies. Load a model, decode, sample, and ship it in your app, on your device, or behind your service.'
 				)}
 				<ul class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 					{#each EMBED_TARGETS as t (t.label)}
@@ -830,36 +843,25 @@ cmake --build build --config Release`,
 		<!-- 8. Install, every way. The hero has the one-liner; this is for
 		     people with a preference (a package manager, a container, their
 		     own build flags). Anchored, so the hero can link here. -->
-		<section id="install" class="flex flex-col gap-10 py-24">
+		<section id="install" class="flex flex-col gap-12 py-24">
 			<div class="grid grid-cols-1 items-end gap-12 lg:grid-cols-2">
 				{@render heading(
 					'Install',
 					'Get llama.cpp your way',
 					'Every method gives you the same tools. Prebuilt binaries for the major platforms and backends are also on the releases page.'
 				)}
-				<div class="flex flex-col gap-3">
-					<CodeTabs tabs={INSTALL_TABS} bind:selected={installMethod} />
-				</div>
+				<CodeTabs tabs={INSTALL_TABS} bind:selected={installMethod} />
 			</div>
-			<div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-				<a
-					href={docs('installation')}
-					class="flex items-center gap-1.5 font-medium underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-				>
-					Installation guide <ArrowRight class="size-3.5" />
-				</a>
-				<a
-					href={`${GITHUB_URL}/releases`}
-					class="flex items-center gap-1.5 font-medium underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-				>
-					Releases <ArrowUpRight class="size-3.5" />
-				</a>
+			<div class="flex flex-wrap gap-x-6 gap-y-2">
+				{@render more(docs('installation'), 'Installation guide')}
+				{@render more(RELEASES_URL, 'Releases')}
 			</div>
 		</section>
 
 		<!-- 9. The hand-off to llama.app. The inverse of llama.app's "Built
-		     on llama.cpp": here, the app is where non-developers should go.
-		     It's a full-width band rather than a small link, so a newcomer
+		     on llama.cpp": here, the app is for anyone who'd rather not run the
+		     engine themselves. Same question as the hero's hand-off, framed
+		     as a preference, not a skill level. It's a full-width band rather than a small link, so anyone
 		     scrolling to the bottom can't miss it. The mark is the same
 		     llama as ours -- the app is ours too. -->
 		<section class="pt-8 pb-24">
@@ -873,7 +875,7 @@ cmake --build build --config Release`,
 					{@html logoSvg}
 				</span>
 				<div class="flex flex-col gap-2">
-					<h2 class="text-2xl font-semibold tracking-tight">Just want to use local AI?</h2>
+					<h2 class="text-2xl font-semibold tracking-tight">Prefer a desktop app?</h2>
 					<p class="max-w-xl leading-relaxed text-pretty text-muted-foreground">
 						Llama is our desktop app, built on llama.cpp. It runs the engine for you, picks models that
 						fit your computer, and gives your other apps a local API — nothing to compile or

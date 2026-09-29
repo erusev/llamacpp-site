@@ -41,8 +41,6 @@
 			     hidden when the build couldn't fetch it. -->
 			<a
 				href={GITHUB_URL}
-				target="_blank"
-				rel="noreferrer"
 				class="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
 			>
 				GitHub

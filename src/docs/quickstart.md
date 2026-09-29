@@ -51,7 +51,7 @@ See [Using the CLI](cli) for system prompts, sampling settings, multimodal input
 `llama serve` launches a server and exposes the model over HTTP. It comes with a full-featured chat UI.
 
 ```sh
-llama serve -hf ggml-org/gemma-4-e4b-it-GGUF:Q4_0
+llama serve -hf unsloth/gemma-4-E4B-it-GGUF:Q4_K_M
 ```
 
 Then open **http://localhost:8080** in your browser to use the [built-in web UI](webui), or call the API:
