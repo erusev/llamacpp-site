@@ -3,7 +3,7 @@
 		code: string;
 		id: string;
 		label: string;
-		lang: 'bash' | 'c' | 'javascript' | 'python';
+		lang: 'bash' | 'c';
 		// Optional one-line aside under the code, e.g. which platforms a
 		// package manager covers.
 		note?: string;
@@ -12,7 +12,7 @@
 
 <script lang="ts">
 	// A dark code panel with tabs and a copy button, used for every snippet
-	// on the homepage (install commands, API calls, the C API).
+	// on the homepage (install commands, the C API).
 	//
 	// Dark in both themes: it reads as "code" at a glance, and it keeps one
 	// Prism palette for the whole site (see app.css).
@@ -61,13 +61,32 @@
 		<CopyButton text={tab.code} class="shrink-0 text-code-muted hover:text-code-foreground" />
 	</div>
 
-	<!-- eslint-disable svelte/no-at-html-tags -->
-	<pre class="overflow-x-auto px-5 py-4 font-mono text-[12.5px] leading-6 sm:text-[13px]"><code
-			>{@html highlighted[tab.id]}</code
-		></pre>
-	<!-- eslint-enable svelte/no-at-html-tags -->
+	<!-- Every tab's panel is rendered, stacked in the same grid cell, and
+	     only the selected one is visible. The cell takes the height of the
+	     tallest panel, so switching tabs never resizes the block -- which
+	     would otherwise shift everything below it on the page. -->
+	<div class="grid grid-cols-1">
+		{#each tabs as t (t.id)}
+			<!-- `invisible` (not `hidden`) keeps the panel in the layout, so it
+			     still counts toward the height, but out of view, the
+			     accessibility tree, and find-in-page. -->
+			<div
+				role="tabpanel"
+				class="col-start-1 row-start-1 flex min-w-0 flex-col {t.id === tab.id ? '' : 'invisible'}"
+			>
+				<!-- eslint-disable svelte/no-at-html-tags -->
+				<!-- flex-1: a shorter snippet leaves its spare room under the
+				     code, so the note stays pinned to the bottom. -->
+				<pre
+					class="flex-1 overflow-x-auto px-5 py-4 font-mono text-[12.5px] leading-6 sm:text-[13px]"><code
+						>{@html highlighted[t.id]}</code
+					></pre>
+				<!-- eslint-enable svelte/no-at-html-tags -->
 
-	{#if tab.note}
-		<p class="border-t border-code-border px-5 py-2.5 text-xs text-code-muted">{tab.note}</p>
-	{/if}
+				{#if t.note}
+					<p class="border-t border-code-border px-5 py-2.5 text-xs text-code-muted">{t.note}</p>
+				{/if}
+			</div>
+		{/each}
+	</div>
 </div>

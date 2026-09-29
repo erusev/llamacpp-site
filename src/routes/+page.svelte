@@ -199,44 +199,15 @@
 		}
 	];
 
-	const API_TABS: Tab[] = [
-		{
-			code: `curl http://localhost:8080/v1/chat/completions \\
+	// The server section's example request. Drawn as a plain terminal
+	// command, like `llama help all` above it, not as a snippet in a tabbed
+	// panel: it only has to show that the endpoint is OpenAI's, not teach
+	// the API in several languages.
+	const API_CALL = `curl http://localhost:8080/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -d '{
     "messages": [{"role": "user", "content": "Hello!"}]
-  }'`,
-			id: 'curl',
-			label: 'curl',
-			lang: 'bash'
-		},
-		{
-			code: `from openai import OpenAI
-
-client = OpenAI(base_url="http://localhost:8080/v1", api_key="no-key-required")
-
-reply = client.chat.completions.create(
-    model="gemma-4-e4b-it",
-    messages=[{"role": "user", "content": "Hello!"}],
-)`,
-			id: 'python',
-			label: 'Python',
-			lang: 'python'
-		},
-		{
-			code: `import OpenAI from "openai";
-
-const client = new OpenAI({ baseURL: "http://localhost:8080/v1", apiKey: "no-key-required" });
-
-const reply = await client.chat.completions.create({
-  model: "gemma-4-e4b-it",
-  messages: [{ role: "user", content: "Hello!" }],
-});`,
-			id: 'js',
-			label: 'JavaScript',
-			lang: 'javascript'
-		}
-	];
+  }'`;
 
 	// -- Hardware ------------------------------------------------------------------------
 	//
@@ -698,7 +669,27 @@ cmake --build build --config Release`,
 					'An OpenAI-compatible server, built in',
 					'One command gives you a fast HTTP server with a web UI. Most tools built for the OpenAI API work with it — change the base URL and keep your code.'
 				)}
-				<CodeTabs tabs={API_TABS} />
+				<!-- The same terminal as the toolkit section's, plus a copy button,
+				     since this command is one to paste. -->
+				<div
+					class="overflow-hidden rounded-xl border border-code-border bg-code font-mono text-[12.5px] leading-6 text-code-foreground shadow-2xl shadow-black/10 sm:text-[13px]"
+				>
+					<div class="flex h-9.75 items-center justify-between border-b border-code-border pr-1.5 pl-4">
+						<span aria-hidden="true" class="flex gap-1.5">
+							<span class="size-2.5 rounded-full bg-white/15"></span>
+							<span class="size-2.5 rounded-full bg-white/15"></span>
+							<span class="size-2.5 rounded-full bg-white/15"></span>
+						</span>
+						<CopyButton text={API_CALL} class="text-code-muted hover:text-code-foreground" />
+					</div>
+					<!-- Kept to its line breaks, and scrolls sideways on phones
+					     rather than wrapping the JSON. -->
+					<div class="overflow-x-auto p-5">
+						<p class="whitespace-pre">
+							<span class="mr-[1ch] text-accent select-none">$</span>{@html bash(API_CALL)}
+						</p>
+					</div>
+				</div>
 			</div>
 
 			<div class="grid grid-cols-1 gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-4">

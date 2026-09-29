@@ -4,7 +4,6 @@
 // this: mdsvex highlights those at build time.)
 import Prism from 'prismjs';
 import 'prismjs/components/prism-c';
-import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-bash';
 
 // Prism's bash grammar colors known commands (`curl`, `git`, ...) as
