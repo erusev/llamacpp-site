@@ -6,15 +6,20 @@
 	import { ArrowUpRight } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { APP_URL, GGUF_MODELS_URL, GITHUB_URL } from '$lib/site';
-	import GitHubIcon from './GitHubIcon.svelte';
+	import { APP_URL, GITHUB_URL, formatStars } from '$lib/site';
 	import Logo from './Logo.svelte';
 
 	const inDocs = $derived(page.url.pathname.startsWith('/docs'));
+
+	// Fetched at build time in +layout.server.ts; null if that failed.
+	const stars = $derived(page.data.stars as number | null);
 </script>
 
-<header class="border-b">
-	<div class="mx-auto flex h-14 max-w-6xl items-center gap-6 px-6 md:px-12">
+<!-- No border, and constrained to the content width, as on llama.app.
+     `w-full` is needed because the layout is a flex column, where `mx-auto`
+     alone would shrink the header to fit its contents. -->
+<header class="mx-auto w-full max-w-6xl px-6 md:px-12">
+	<div class="flex h-14 items-center gap-6">
 		<a href={resolve('/')} aria-label="llama.cpp home"><Logo /></a>
 
 		<nav class="flex items-center gap-5 text-sm text-muted-foreground">
@@ -22,19 +27,9 @@
 				href={resolve('/docs/[slug]', { slug: 'introduction' })}
 				class="transition-colors hover:text-foreground {inDocs ? 'text-foreground' : ''}">Docs</a
 			>
-			<!-- External links are marked with an arrow, so it's clear they
-			     leave the site. -->
-			<a
-				href={GGUF_MODELS_URL}
-				target="_blank"
-				rel="noreferrer"
-				class="hidden items-center gap-0.5 transition-colors hover:text-foreground sm:flex"
-			>
-				Models <ArrowUpRight class="size-3.5" />
-			</a>
 		</nav>
 
-		<div class="ml-auto flex items-center gap-2">
+		<div class="ml-auto flex items-center gap-5">
 			<a
 				href={APP_URL}
 				class="hidden items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground md:flex"
@@ -42,14 +37,23 @@
 				Looking for the desktop app? <span class="font-medium text-foreground">llama.app</span>
 				<ArrowUpRight class="size-3.5" />
 			</a>
+			<!-- "GitHub" plus the star count, as on llama.app. The count is
+			     hidden when the build couldn't fetch it. -->
 			<a
 				href={GITHUB_URL}
 				target="_blank"
 				rel="noreferrer"
-				aria-label="llama.cpp on GitHub"
-				class="rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground"
+				class="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
 			>
-				<GitHubIcon class="size-5" />
+				GitHub
+				{#if stars !== null}
+					<span
+						class="inline-flex items-center gap-1 rounded-md bg-foreground/8 px-1.5 py-0.5 text-xs text-foreground/70"
+					>
+						<span aria-hidden="true">★</span>
+						{formatStars(stars)}
+					</span>
+				{/if}
 			</a>
 		</div>
 	</div>

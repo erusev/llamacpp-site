@@ -7,4 +7,11 @@ import 'prismjs/components/prism-c';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-bash';
 
+// Prism's bash grammar colors known commands (`curl`, `git`, ...) as
+// functions, but doesn't know `llama` -- without this, the site's main
+// command would be the one thing left uncolored.
+Prism.languages.insertBefore('bash', 'function', {
+	llama: { pattern: /(^|[\s;|&])llama(?=\s|$)/m, lookbehind: true, alias: 'function' }
+});
+
 export default Prism;

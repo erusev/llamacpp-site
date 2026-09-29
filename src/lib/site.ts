@@ -2,6 +2,7 @@
 // stats) says where it came from, so it can be refreshed.
 
 export const GITHUB_URL = 'https://github.com/ggml-org/llama.cpp';
+export const GITHUB_API_URL = 'https://api.github.com/repos/ggml-org/llama.cpp';
 export const RELEASES_URL = `${GITHUB_URL}/releases`;
 export const DISCUSSIONS_URL = `${GITHUB_URL}/discussions`;
 export const GGML_URL = 'https://github.com/ggml-org/ggml';
@@ -20,10 +21,16 @@ export const repoDoc = (path: string) => `${GITHUB_URL}/blob/master/${path}`;
 export const INSTALL_SH = 'curl -LsSf https://llama.app/install.sh | sh';
 export const INSTALL_PS1 = 'irm https://llama.app/install.ps1 | iex';
 
+// Formats a star count the way the header and stats show it (e.g. "129K").
+export const formatStars = (n: number) =>
+	new Intl.NumberFormat('en', { maximumFractionDigits: 1, notation: 'compact' }).format(n);
+
 // As of 2026-09-28. Stars and forks from `gh api repos/ggml-org/llama.cpp`;
 // commits and contributors from a local clone (`git rev-list --count HEAD`,
 // `git shortlog -sn HEAD | wc -l` -- the latter counts distinct author
-// names, so it's rounded down to allow for duplicates).
+// names, so it's rounded down to allow for duplicates). The stars value is only a
+// fallback: the homepage replaces it with the count fetched at build time
+// (routes/+layout.server.ts).
 export const STATS = [
 	{ label: 'GitHub stars', value: '129K' },
 	{ label: 'Forks', value: '23K' },

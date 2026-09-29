@@ -42,8 +42,10 @@
 	];
 </script>
 
-<footer class="border-t">
-	<div class="mx-auto grid max-w-6xl grid-cols-2 gap-10 px-6 py-14 md:grid-cols-5 md:px-12">
+<!-- The border sits on the inner grid so it stops at the content width.
+     `w-full` keeps the flex-column layout from shrinking it to its contents. -->
+<footer class="mx-auto w-full max-w-6xl px-6 md:px-12">
+	<div class="grid grid-cols-2 gap-10 border-t py-14 md:grid-cols-5">
 		<div class="col-span-2 flex flex-col gap-3">
 			<Logo />
 			<p class="max-w-xs text-sm leading-relaxed text-muted-foreground">

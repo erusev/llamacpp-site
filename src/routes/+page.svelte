@@ -41,6 +41,7 @@
 	import logoSvg from '$lib/assets/logo.svg?raw';
 	import CodeTabs, { type Tab } from '$lib/components/CodeTabs.svelte';
 	import CopyButton from '$lib/components/CopyButton.svelte';
+	import Prism from '$lib/prism';
 	import GitHubIcon from '$lib/components/GitHubIcon.svelte';
 	import {
 		APP_URL,
@@ -48,11 +49,25 @@
 		GITHUB_URL,
 		INSTALL_PS1,
 		INSTALL_SH,
+		formatStars,
 		repoDoc,
 		STATS
 	} from '$lib/site';
 
+	let { data } = $props();
+
 	const docs = (slug: string) => resolve('/docs/[slug]', { slug });
+
+	// The stats row, with the star count fetched at build time (see
+	// +layout.server.ts) in place of the one in site.ts, so it always matches
+	// the header. Falls back to site.ts if the fetch failed.
+	const stats = $derived(
+		STATS.map((s) =>
+			s.label === 'GitHub stars' && data.stars !== null
+				? { ...s, value: formatStars(data.stars) }
+				: s
+		)
+	);
 
 	// -- Hero install --------------------------------------------------------------
 	//
@@ -106,6 +121,10 @@
 			]
 		}
 	];
+
+	// Commands are highlighted like the rest of the site's shell snippets
+	// (and like a shell with syntax highlighting); the output stays plain.
+	const bash = (code: string) => Prism.highlight(code, Prism.languages.bash, 'bash');
 
 	let sessionId = $state('cli');
 	const session = $derived(SESSIONS.find((s) => s.id === sessionId)!);
@@ -429,23 +448,15 @@ cmake --build build --config Release`,
 	     audience expects to copy a line into a terminal -- with the docs
 	     and GitHub next to it. The terminal on the right shows what happens
 	     after you paste it. -->
-	<section class="relative overflow-hidden border-b">
-		<!-- A faint grid behind the hero: reads as "engineering" without
-		     competing with the terminal. Faded out toward the edges. -->
+	<section>
 		<div
-			aria-hidden="true"
-			class="absolute inset-0 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_at_30%_40%,black,transparent_70%)] [background-size:48px_48px] opacity-60"
-		></div>
-
-		<div
-			class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-16 md:px-12 md:py-24 lg:grid-cols-[1fr_minmax(0,32rem)] lg:gap-14"
+			class="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-16 md:px-12 md:py-24 lg:grid-cols-2"
 		>
 			<div class="flex flex-col items-start gap-7">
 				<a
 					href={GITHUB_URL}
-					class="flex items-center gap-2 rounded-full border bg-background px-3 py-1 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
+					class="rounded-full border px-3 py-1 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
 				>
-					<span class="size-1.5 rounded-full bg-accent"></span>
 					Open source · MIT license
 				</a>
 
@@ -521,7 +532,7 @@ cmake --build build --config Release`,
 			</div>
 
 			<!-- The terminal. aria-hidden isn't used: the transcript is real
-			     content (what the commands do), and it's plain text. -->
+			     content (what the commands do). -->
 			<div
 				class="overflow-hidden rounded-xl border border-code-border bg-code text-code-foreground shadow-2xl shadow-black/20"
 			>
@@ -555,7 +566,7 @@ cmake --build build --config Release`,
 					{#each session.lines as line, i (i)}
 						{#if line.kind === 'cmd'}
 							<p class="whitespace-pre-wrap">
-								<span class="mr-[1ch] text-accent select-none">$</span>{line.text}
+								<span class="mr-[1ch] text-accent select-none">$</span>{@html bash(line.text)}
 							</p>
 						{:else if line.kind === 'input'}
 							<p><span class="mr-[1ch] text-code-muted select-none">&gt;</span>{line.text}</p>
@@ -573,9 +584,11 @@ cmake --build build --config Release`,
 	<!-- 2. Stats. Social proof in the currency developers trust: GitHub.
 	     Numbers only, no logo wall -- we'd need permission for logos, and
 	     the numbers are verifiable. -->
-	<section class="border-b">
-		<dl class="mx-auto grid max-w-6xl grid-cols-2 px-6 md:px-12 md:grid-cols-4">
-			{#each STATS as s, i (s.label)}
+	<!-- The borders sit on the list, not the section, so they stop at the
+	     content width. -->
+	<section class="mx-auto max-w-6xl px-6 md:px-12">
+		<dl class="grid grid-cols-2 border-y md:grid-cols-4">
+			{#each stats as s, i (s.label)}
 				<div
 					class="flex flex-col gap-1 py-8 {i % 2 === 1 ? 'pl-6 max-md:border-l' : ''} {i > 0
 						? 'md:border-l md:pl-8'
@@ -611,7 +624,7 @@ cmake --build build --config Release`,
 			<div
 				class="overflow-hidden rounded-xl border border-code-border bg-code p-5 font-mono text-[12.5px] leading-7 text-code-foreground sm:text-[13px]"
 			>
-				<p><span class="mr-[1ch] text-accent select-none">$</span>llama help all</p>
+				<p><span class="mr-[1ch] text-accent select-none">$</span>{@html bash('llama help all')}</p>
 				<p class="text-code-muted">Available commands:</p>
 				<!-- Two columns that line up, like the real output. On phones
 				     the descriptions wrap under the names instead. -->
@@ -628,7 +641,7 @@ cmake --build build --config Release`,
 		     people meet it through an app that talks to `llama serve`. Code
 		     first on desktop (it's the thing to copy), features below. -->
 		<section class="flex flex-col gap-12 py-24">
-			<div class="grid grid-cols-1 items-end gap-10 lg:grid-cols-2">
+			<div class="grid grid-cols-1 items-end gap-12 lg:grid-cols-2">
 				{@render heading(
 					'llama serve',
 					'An OpenAI-compatible server, built in',
@@ -785,7 +798,7 @@ cmake --build build --config Release`,
 		<!-- 7. The C API. For the people building llama.cpp *into* something:
 		     app developers, binding authors, researchers. The snippet shows
 		     that the core loop fits on a screen. -->
-		<section class="grid grid-cols-1 items-center gap-12 py-24 lg:grid-cols-[1fr_minmax(0,34rem)]">
+		<section class="grid grid-cols-1 items-center gap-12 py-24 lg:grid-cols-2">
 			<div class="flex flex-col gap-8">
 				{@render heading(
 					'libllama',
@@ -817,7 +830,7 @@ cmake --build build --config Release`,
 		     people with a preference (a package manager, a container, their
 		     own build flags). Anchored, so the hero can link here. -->
 		<section id="install" class="flex flex-col gap-10 py-24">
-			<div class="grid grid-cols-1 items-end gap-10 lg:grid-cols-2">
+			<div class="grid grid-cols-1 items-end gap-12 lg:grid-cols-2">
 				{@render heading(
 					'Install',
 					'Get llama.cpp your way',
