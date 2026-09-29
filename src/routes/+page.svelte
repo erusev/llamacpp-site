@@ -242,19 +242,25 @@ const reply = await client.chat.completions.create({
 	//
 	// The "Supported backends" table in the README, grouped by the kind of
 	// device a visitor would look for, plus the CPU instruction sets from
-	// its "Description" list. Mono names are what you'd pass to CMake or see
-	// in logs; the second line is the hardware, in the visitor's words.
+	// its "Description" list. Each row leads with the hardware, in the
+	// visitor's words, since that's what they're scanning for; the mono
+	// backend name (what you'd pass to CMake or see in logs) follows. The
+	// catch-alls ("Any GPU", "Any CPU") go last in their lists, so a visitor
+	// who didn't find their hardware lands on them. RPC isn't hardware, so
+	// it's a link under the table instead of a row. VirtGPU is left out for
+	// the same reason: it passes a VM guest's work through to the host's
+	// backend (Metal or Vulkan) rather than targeting hardware of its own.
 	const HARDWARE = [
 		{
 			backends: [
 				{ device: 'Apple Silicon', name: 'Metal' },
 				{ device: 'NVIDIA GPUs', name: 'CUDA' },
 				{ device: 'AMD GPUs', name: 'HIP' },
-				{ device: 'Any GPU', name: 'Vulkan' },
 				{ device: 'Intel GPUs', name: 'SYCL' },
 				{ device: 'Moore Threads GPUs', name: 'MUSA' },
 				{ device: 'Adreno GPUs', name: 'OpenCL' },
-				{ device: 'Browsers and native', name: 'WebGPU' }
+				{ device: 'Browsers and native', name: 'WebGPU' },
+				{ device: 'Any GPU', name: 'Vulkan' }
 			],
 			title: 'GPUs'
 		},
@@ -266,6 +272,11 @@ const reply = await client.chat.completions.create({
 				{ device: 'AMD CPUs', name: 'ZenDNN' },
 				{ device: 'Any CPU', name: 'BLAS · BLIS' }
 			],
+			// The first three rows aren't backends but instruction sets of the
+			// one CPU backend (`ggml/src/ggml-cpu`), while BLAS and ZenDNN are
+			// backends of their own (`ggml-blas`, `ggml-zendnn`). The page
+			// doesn't make the distinction -- visitors care whether it runs
+			// well on their CPU, not how the code is split.
 			title: 'CPUs'
 		},
 		{
@@ -274,10 +285,9 @@ const reply = await client.chat.completions.create({
 				{ device: 'Snapdragon', name: 'Hexagon' },
 				// Marked "In Progress" in the README's backends table
 				{ device: 'Intel CPU, GPU, NPU (in progress)', name: 'OpenVINO' },
-				{ device: 'IBM Z & LinuxONE', name: 'zDNN' },
-				{ device: 'Across machines', name: 'RPC' }
+				{ device: 'IBM Z & LinuxONE', name: 'zDNN' }
 			],
-			title: 'NPUs, mainframes, and clusters'
+			title: 'NPUs and mainframes'
 		}
 	];
 
@@ -720,8 +730,8 @@ cmake --build build --config Release`,
 						<ul class="flex flex-col divide-y">
 							{#each group.backends as b (b.name)}
 								<li class="flex items-baseline justify-between gap-4 py-2.5 text-sm">
-									<span class="font-mono font-medium">{b.name}</span>
-									<span class="text-right text-muted-foreground">{b.device}</span>
+									<span>{b.device}</span>
+									<span class="text-right font-mono text-muted-foreground">{b.name}</span>
 								</li>
 							{/each}
 						</ul>
@@ -732,6 +742,7 @@ cmake --build build --config Release`,
 			<div class="flex flex-wrap gap-x-6 gap-y-2">
 				{@render more(repoDoc('docs/build.md'), 'Building for your backend')}
 				{@render more(repoDoc('docs/multi-gpu.md'), 'Splitting across GPUs')}
+				{@render more(repoDoc('tools/rpc/README.md'), 'Splitting across machines')}
 			</div>
 		</section>
 
