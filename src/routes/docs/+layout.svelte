@@ -1,6 +1,8 @@
 <script lang="ts">
 	// Docs shell: a sticky sidebar on desktop, a horizontal page list on
-	// phones (seven pages don't need a drawer).
+	// phones (seven pages don't need a drawer). The sidebar sticks to the
+	// top of the viewport: the site header isn't sticky (it scrolls away,
+	// like on llama.app), so there's nothing to clear.
 	import { ArrowUpRight } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -12,8 +14,8 @@
 	const current = $derived(page.params.slug);
 </script>
 
-<div class="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 sm:px-6 md:grid-cols-[13rem_1fr] md:gap-14">
-	<aside class="md:sticky md:top-14 md:h-[calc(100dvh-3.5rem)] md:overflow-y-auto md:py-12">
+<div class="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 md:px-12 md:grid-cols-[13rem_1fr] md:gap-14">
+	<aside class="md:sticky md:top-0 md:h-dvh md:overflow-y-auto md:py-12">
 		<nav class="flex gap-8 overflow-x-auto border-b py-4 text-sm md:flex-col md:border-0 md:py-0">
 			{#each TOC as section (section.title)}
 				<div class="flex shrink-0 flex-col gap-1">

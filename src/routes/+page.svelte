@@ -438,7 +438,7 @@ cmake --build build --config Release`,
 		></div>
 
 		<div
-			class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-[1fr_minmax(0,32rem)] lg:gap-14"
+			class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-16 md:px-12 md:py-24 lg:grid-cols-[1fr_minmax(0,32rem)] lg:gap-14"
 		>
 			<div class="flex flex-col items-start gap-7">
 				<a
@@ -574,7 +574,7 @@ cmake --build build --config Release`,
 	     Numbers only, no logo wall -- we'd need permission for logos, and
 	     the numbers are verifiable. -->
 	<section class="border-b">
-		<dl class="mx-auto grid max-w-6xl grid-cols-2 px-4 sm:px-6 md:grid-cols-4">
+		<dl class="mx-auto grid max-w-6xl grid-cols-2 px-6 md:px-12 md:grid-cols-4">
 			{#each STATS as s, i (s.label)}
 				<div
 					class="flex flex-col gap-1 py-8 {i % 2 === 1 ? 'pl-6 max-md:border-l' : ''} {i > 0
@@ -588,7 +588,7 @@ cmake --build build --config Release`,
 		</dl>
 	</section>
 
-	<div class="mx-auto max-w-6xl px-4 sm:px-6">
+	<div class="mx-auto max-w-6xl px-6 md:px-12">
 		<!-- 3. The toolkit. The `llama` binary is new and unifies what used
 		     to be a dozen `llama-*` executables, so it's worth a section:
 		     "install once, get everything". The list is drawn as `llama help all`
@@ -816,7 +816,7 @@ cmake --build build --config Release`,
 		<!-- 8. Install, every way. The hero has the one-liner; this is for
 		     people with a preference (a package manager, a container, their
 		     own build flags). Anchored, so the hero can link here. -->
-		<section id="install" class="flex scroll-mt-20 flex-col gap-10 py-24">
+		<section id="install" class="flex flex-col gap-10 py-24">
 			<div class="grid grid-cols-1 items-end gap-10 lg:grid-cols-2">
 				{@render heading(
 					'Install',

@@ -13,8 +13,8 @@
 	const inDocs = $derived(page.url.pathname.startsWith('/docs'));
 </script>
 
-<header class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-lg">
-	<div class="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4 sm:px-6">
+<header class="border-b">
+	<div class="mx-auto flex h-14 max-w-6xl items-center gap-6 px-6 md:px-12">
 		<a href={resolve('/')} aria-label="llama.cpp home"><Logo /></a>
 
 		<nav class="flex items-center gap-5 text-sm text-muted-foreground">

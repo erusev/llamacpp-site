@@ -43,7 +43,7 @@
 </script>
 
 <footer class="border-t">
-	<div class="mx-auto grid max-w-6xl grid-cols-2 gap-10 px-4 py-14 sm:px-6 md:grid-cols-5">
+	<div class="mx-auto grid max-w-6xl grid-cols-2 gap-10 px-6 py-14 md:grid-cols-5 md:px-12">
 		<div class="col-span-2 flex flex-col gap-3">
 			<Logo />
 			<p class="max-w-xs text-sm leading-relaxed text-muted-foreground">
