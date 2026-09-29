@@ -37,7 +37,7 @@
 </script>
 
 <div
-	class="overflow-hidden rounded-xl border border-code-border bg-code text-code-foreground shadow-2xl shadow-black/10 {className}"
+	class="overflow-hidden rounded-xl border border-code-border bg-code text-code-foreground {className}"
 >
 	<div class="flex items-center justify-between gap-2 border-b border-code-border pr-1.5 pl-2">
 		<!-- Scrolls sideways when there are more tabs than fit (the install

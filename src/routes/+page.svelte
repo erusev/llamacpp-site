@@ -549,7 +549,7 @@ cmake --build build --config Release`,
 			<!-- The terminal. aria-hidden isn't used: the transcript is real
 			     content (what the commands do). -->
 			<div
-				class="overflow-hidden rounded-xl border border-code-border bg-code text-code-foreground shadow-2xl shadow-black/10"
+				class="overflow-hidden rounded-xl border border-code-border bg-code text-code-foreground"
 			>
 				<div class="flex items-center gap-4 border-b border-code-border px-4">
 					<span aria-hidden="true" class="flex gap-1.5">
@@ -634,10 +634,10 @@ cmake --build build --config Release`,
 				{@render more(docs('cli'), 'Using the CLI')}
 			</div>
 
-			<!-- Drawn like the hero's terminal (window dots, font, line height,
-			     shadow), minus the tabs, so the two read as the same terminal. -->
+			<!-- Drawn like the hero's terminal (window dots, font, line height),
+			     minus the tabs, so the two read as the same terminal. -->
 			<div
-				class="overflow-hidden rounded-xl border border-code-border bg-code font-mono text-[12.5px] leading-6 text-code-foreground shadow-2xl shadow-black/10 sm:text-[13px]"
+				class="overflow-hidden rounded-xl border border-code-border bg-code font-mono text-[12.5px] leading-6 text-code-foreground sm:text-[13px]"
 			>
 				<!-- Same height as the hero's tab bar (py-2.5 around a text-xs
 				     line, plus its 2px tab underline). -->
@@ -680,7 +680,7 @@ cmake --build build --config Release`,
 				<!-- The same terminal as the toolkit section's, plus a copy button,
 				     since this command is one to paste. -->
 				<div
-					class="overflow-hidden rounded-xl border border-code-border bg-code font-mono text-[12.5px] leading-6 text-code-foreground shadow-2xl shadow-black/10 sm:text-[13px]"
+					class="overflow-hidden rounded-xl border border-code-border bg-code font-mono text-[12.5px] leading-6 text-code-foreground sm:text-[13px]"
 				>
 					<div class="flex h-9.75 items-center justify-between border-b border-code-border pr-1.5 pl-4">
 						<span aria-hidden="true" class="flex gap-1.5">
