@@ -5,7 +5,7 @@
 	// to run models from the terminal, serve them, benchmark them, or build
 	// them into something. People who just want to use local AI belong on
 	// llama.app, and the page says so up front (the header, the hero's
-	// "Not a developer?" line) and again at the end.
+	// "Prefer a desktop app?" line) and again at the end.
 	//
 	// Section order follows the questions an engine visitor asks, in order:
 	//   1. What is this, and how do I try it?  -- hero: tagline, install, terminal
@@ -519,15 +519,16 @@ cmake --build build --config Release`,
 					</a>
 				</div>
 
-				<!-- The hand-off, where a newcomer who landed here would give up
-				     otherwise: right after the terminal commands they can't use. -->
+				<!-- The hand-off, right after the terminal commands, for anyone who'd
+				     rather not use them. Framed as a preference, not as "not a
+				     developer" -- plenty of developers use the app too. -->
 				<p class="text-sm text-muted-foreground">
-					Not a developer?
+					Prefer a desktop app?
 					<a
 						href={APP_URL}
 						class="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-						>Get the Llama desktop app</a
-					> — llama.cpp, with nothing to set up.
+						>Get Llama</a
+					> — llama.cpp in a native app, with nothing to set up.
 				</p>
 			</div>
 
