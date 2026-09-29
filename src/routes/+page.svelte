@@ -444,7 +444,7 @@ cmake --build build --config Release`,
 	<div class="flex max-w-2xl flex-col gap-4">
 		<p class="font-mono text-xs tracking-wider text-accent uppercase">{eyebrow}</p>
 		<h2 class="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{title}</h2>
-		<p class="text-lg leading-relaxed text-pretty text-muted-foreground">
+		<p class="text-lg leading-relaxed text-pretty">
 			{#each lead.split('`') as part, i (i)}{#if i % 2 === 1}<code class="font-mono text-[0.9em]"
 						>{part}</code
 					>{:else}{part}{/if}{/each}
@@ -494,7 +494,7 @@ cmake --build build --config Release`,
 					LLM inference,<br />on any hardware.
 				</h1>
 
-				<p class="max-w-xl text-lg leading-relaxed text-pretty text-muted-foreground sm:text-xl">
+				<p class="max-w-xl text-lg leading-relaxed text-pretty sm:text-xl">
 					llama.cpp is the open-source engine for running large language models, written in plain
 					C/C++. Minimal setup and state-of-the-art performance — on a laptop, a server, or in the
 					cloud.
@@ -884,7 +884,7 @@ cmake --build build --config Release`,
 				</span>
 				<div class="flex flex-col gap-2">
 					<h2 class="text-2xl font-semibold tracking-tight">Prefer a desktop app?</h2>
-					<p class="max-w-xl leading-relaxed text-pretty text-muted-foreground">
+					<p class="max-w-xl leading-relaxed text-pretty">
 						Llama is our desktop app, built on llama.cpp. It runs the engine for you, picks models that
 						fit your computer, and gives your other apps a local API — nothing to compile or
 						configure.
