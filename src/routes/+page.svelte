@@ -311,21 +311,21 @@ const reply = await client.chat.completions.create({
 	// `struct llama_model` etc. without typedefs, so C would need `struct`
 	// on every type. `ggml_backend_load_all()` stays in because builds with
 	// dynamic backends (`GGML_BACKEND_DL`) load no backend without it. Keep
-	// the function names in sync with `include/llama.h`.
+	// the function names in sync with `include/llama.h`. Lines are left
+	// unbroken (the longest is ~95 characters): the panel spans the full
+	// content width, so they fit on desktop, and it scrolls sideways on
+	// smaller screens rather than wrapping.
 	const C_TABS: Tab[] = [
 		{
 			code: `#include "llama.h"
 
 ggml_backend_load_all();
 
-llama_model * model = llama_model_load_from_file(
-    "model.gguf", llama_model_default_params());
-llama_context * ctx = llama_init_from_model(
-    model, llama_context_default_params());
+llama_model * model = llama_model_load_from_file("model.gguf", llama_model_default_params());
+llama_context * ctx = llama_init_from_model(model, llama_context_default_params());
 const llama_vocab * vocab = llama_model_get_vocab(model);
 
-llama_sampler * smpl = llama_sampler_chain_init(
-    llama_sampler_chain_default_params());
+llama_sampler * smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
 llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
 
 // Decode the prompt, then sample one token at a time
@@ -810,20 +810,31 @@ cmake --build build --config Release`,
 
 		<!-- 7. The C API. For the people building llama.cpp *into* something:
 		     app developers, binding authors, researchers. The snippet shows
-		     that the core loop fits on a screen. -->
-		<section class="grid grid-cols-1 items-center gap-12 py-24 lg:grid-cols-2">
-			<div class="flex flex-col gap-8">
-				{@render heading(
-					'libllama',
-					'Build it into anything',
-					'The same C API that powers `llama cli` and `llama serve`, with no external dependencies. Load a model, decode, sample, and ship it in your app, on your device, or behind your service.'
-				)}
-				<ul class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+		     that the core loop fits on a screen. Stacked like the hardware
+		     section -- heading, then a wide block -- because in a half-width
+		     column the snippet's lines had to be broken to fit. The longest
+		     line still leaves room on the right, so the links sit there as a
+		     narrow column, like a docs sidebar; below lg they go under the
+		     code. -->
+		<section class="flex flex-col gap-12 py-24">
+			{@render heading(
+				'libllama',
+				'Build it into anything',
+				'The same C API that powers `llama cli` and `llama serve`, with no external dependencies. Load a model, decode, sample, and ship it in your app, on your device, or behind your service.'
+			)}
+
+			<!-- 16rem fits the longest note on one line and leaves the code
+			     column wide enough for the longest line. min-w-0 lets the code
+			     column shrink (and scroll) instead of stretching the grid. -->
+			<div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_16rem]">
+				<CodeTabs tabs={C_TABS} class="min-w-0" />
+
+				<ul class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
 					{#each EMBED_TARGETS as t (t.label)}
 						<li>
 							<a
 								href={t.href}
-								class="flex items-center justify-between gap-3 rounded-lg border px-4 py-3 transition-colors hover:border-foreground/30"
+								class="flex h-full items-center justify-between gap-3 rounded-lg border px-4 py-3 transition-colors hover:border-foreground/30"
 							>
 								<span class="flex flex-col">
 									<span class="font-mono text-sm font-medium">{t.label}</span>
@@ -835,8 +846,6 @@ cmake --build build --config Release`,
 					{/each}
 				</ul>
 			</div>
-
-			<CodeTabs tabs={C_TABS} />
 		</section>
 
 		<!-- 8. Install, every way. The hero has the one-liner; this is for
